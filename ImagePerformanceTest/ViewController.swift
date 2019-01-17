@@ -29,23 +29,29 @@ enum TestCase {
     case three // Folder on UIImage(named:) vs Asset on UIImage(named:in:compatibleWith:)
     case four  // [Cache Load Speed] Folder vs Asset on UIImage(named:)
     case five  // [Cache Load Speed] Folder vs Asset on UIImage(named:in:compatibleWith:)
-//    case six   // [First Load Speed] Folder vs Asset on UIImage(named:) on Heavy Weight Project
-//    case seven // [First Load Speed] Folder vs Asset on UIImage(named:in:compatibleWith:) on Heavy Weight Project
+    //    case six   // [First Load Speed] Folder vs Asset on UIImage(named:) on Heavy Weight Project
+    //    case seven // [First Load Speed] Folder vs Asset on UIImage(named:in:compatibleWith:) on Heavy Weight Project
 }
 
 class ViewController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let testCase: TestCase = .four
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.startTest()
+        }
+    }
+    
+    func startTest() {
+        let testCase: TestCase = .two
         
         switch testCase {
         case .one:
             test(location: .folder, method: .named)
             test(location: .asset , method: .named)
         case .two:
-            test(location: .folder, method: .compatibleWith)
+            //            test(location: .folder, method: .compatibleWith)
             test(location: .asset , method: .compatibleWith)
         case .three:
             test(location: .folder, method: .named)
@@ -68,17 +74,13 @@ class ViewController: UIViewController {
         }
         
         let start = Date()
-        _ = (1...10).reduce(Date()){
-            let name = imageName(location: location, index: (cache == .use ? 1 : $1))
+        _ = (1...10).forEach {
+            let name = imageName(location: location, index: (cache == .use ? 1 : $0))
             array.append(image(name: name, method: method)!)
-            let duration = String(format: "%.10f", Date().timeIntervalSince($0))
-            print("'\(name)' during ", duration)
-            return Date()
         }
         
         let totalDuration = String(format: "%.10f", Date().timeIntervalSince(start))
-        print("image in <", location, "> with <", method, "> total duration : ", totalDuration)
-        print("")
+        print("image in <", location, "> with <", method, "> total duration : ", totalDuration + "\n")
     }
     
     func image(name: String, method: ImageMethod) -> UIImage? {
@@ -93,8 +95,5 @@ class ViewController: UIViewController {
     func imageName(location: ImageLocation, index: Int) -> String {
         return "image" + (location == .asset ? "_asset" : "") + "\(index)"
     }
-    
-    
-    
 }
 
